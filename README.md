@@ -1,28 +1,26 @@
-Automação de Provisionamento: AD & Notificação Corporativa
-📌 Visão Geral (Contexto IAM/IGA)
-Este projeto automatiza o fluxo de Provisionamento de Identidades (Joiner Process), integrando a criação técnica de contas no Active Directory com a comunicação operacional via Outlook. Como Analista de Gestão de Acessos II, desenvolvi esta solução para padronizar a entrada de novos colaboradores, garantindo que os atributos de governança sejam populados corretamente desde o primeiro dia.
+# Automação de Provisionamento Híbrido: AD, Microsoft Graph & Notificação Corporativa
 
-🚀 Diferenciais Técnicos
-Normalização de Dados: Função integrada para limpeza de caracteres especiais e acentuação (Unicode), evitando erros de sincronização em sistemas legados.
+## 📌 Visão Geral (Contexto IAM/IGA)
+Este projeto automatiza o fluxo de **Provisionamento de Identidades (Joiner Process)** e **Migração Híbrida**, integrando a criação de contas no **Active Directory local**, a gestão de atributos no **Microsoft Entra ID via Graph API** e a comunicação operacional via **Outlook**. Desenvolvido para padronizar a entrada e transição de colaboradores, garantindo governança, conformidade técnica e integridade de dados desde o primeiro dia.
 
-Segurança de Senha Provisória: Lógica para geração de senhas baseadas em atributos do usuário (ex: parte do CPF), forçando a alteração obrigatória no primeiro logon.
+## 🚀 Diferenciais Técnicos
+* **Sincronização Híbrida Condicional (Entra ID / Graph API):** Identifica automaticamente processos de migração e realiza chamadas à API Microsoft Graph para limpeza do atributo `OnPremisesImmutableId`, evitando conflitos de sincronização no Azure AD Connect.
+* **Normalização e Saneamento de Dados:** Função avançada (`Set-NormalizedText`) baseada em decomposição Unicode (FormD) para remoção de acentuação e caracteres especiais, garantindo compatibilidade com sistemas legados.
+* **Segurança de Senha Provisória:** Lógica dinâmica para geração de credenciais provisórias baseadas em atributos seguros do usuário, com alteração obrigatória no primeiro logon (`ChangePasswordAtLogon = $true`).
+* **Lógica Dinâmica de Unidades Organizacionais (OUs):** Alocação automática baseada na categoria do perfil (Interno vs. Terceiro/Prestador) e definição personalizada de proxies SMTP/SIP.
+* **Comunicação Automatizada (UX):** Geração automática de e-mails em HTML formatados com tabela de dados e instruções de segurança (MFA), salvando diretamente nos **Rascunhos (Drafts)** do Outlook para validação prévia do analista.
 
-Lógica de Unidades Organizacionais (OU): Atribuição dinâmica baseada na categoria do colaborador (Interno ou Externo/Terceiro).
+## 🛠️ Tecnologias Utilizadas
+* **PowerShell (Core):** Engine principal da automação e manipulação de objetos.
+* **Módulo Active Directory:** Gestão de objetos de usuário e atributos estendidos (`extensionAttributes`, `employeeID`, etc.).
+* **Microsoft Graph SDK (`Connect-MgGraph` / `Invoke-MgGraphRequest`):** Comunicação via REST API (método PATCH) com o Microsoft Entra ID.
+* **Microsoft Outlook COM Object:** Automação e integração com o cliente de e-mail local.
 
-Experiência do Usuário (UX): Geração automática de e-mail em HTML para o gestor, contendo todas as instruções de acesso e suporte, salvando-o nos rascunhos para revisão.
-
-🛠️ Tecnologias Utilizadas
-PowerShell: Core da automação.
-
-Módulo Active Directory: Gestão de objetos de usuário e atributos estendidos.
-
-Microsoft Outlook COM Object: Interface para automação de notificações corporativas.
-
-📋 Como Utilizar
-Prepare os dados dos novos usuários (formato tabulado/Excel).
-
-Execute o script ProvisionamentoLote.ps1.
-
-Cole os dados diretamente no console quando solicitado.
-
-O script criará as contas no AD e gerará os e-mails de boas-vindas na sua pasta de Rascunhos (Drafts).
+## 📋 Como Utilizar
+1. Copie a massa de dados do Excel (17 colunas separadas por Tab, incluindo a sinalização do tipo de processo: `nova` ou `migracao`).
+2. Execute o script `ProvisionamentoLote.ps1`.
+3. Cole os dados diretamente no console quando solicitado e pressione `Enter`.
+4. O script identificará os cenários:
+   * Se houver contas de **migração**, solicitará a conexão com o **Microsoft Graph** para reset do `ImmutableID`.
+   * Se forem apenas **contas novas**, executará o fluxo 100% local.
+5. As contas serão criadas no AD e os e-mails de onboarding serão salvos na pasta de **Rascunhos** do Outlook.
