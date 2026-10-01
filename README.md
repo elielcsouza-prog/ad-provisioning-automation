@@ -1,26 +1,42 @@
-# Automação de Provisionamento Híbrido: AD, Microsoft Graph & Notificação Corporativa
+# 🛡️ Central de Provisionamento e Auditoria de Identidades (IAM / IGA)
 
-## 📌 Visão Geral (Contexto IAM/IGA)
-Este projeto automatiza o fluxo de **Provisionamento de Identidades (Joiner Process)** e **Migração Híbrida**, integrando a criação de contas no **Active Directory local**, a gestão de atributos no **Microsoft Entra ID via Graph API** e a comunicação operacional via **Outlook**. Desenvolvido para padronizar a entrada e transição de colaboradores, garantindo governança, conformidade técnica e integridade de dados desde o primeiro dia.
+Solução modular em PowerShell para governança e automação do ciclo de vida de identidades (**Joiners**, **Migrações Híbridas** e **Auditoria Cadastral**), integrando Active Directory local, Microsoft Entra ID e notificações corporativas no Microsoft Outlook.
 
-## 🚀 Diferenciais Técnicos
-* **Sincronização Híbrida Condicional (Entra ID / Graph API):** Identifica automaticamente processos de migração e realiza chamadas à API Microsoft Graph para limpeza do atributo `OnPremisesImmutableId`, evitando conflitos de sincronização no Azure AD Connect.
-* **Normalização e Saneamento de Dados:** Função avançada (`Set-NormalizedText`) baseada em decomposição Unicode (FormD) para remoção de acentuação e caracteres especiais, garantindo compatibilidade com sistemas legados.
-* **Segurança de Senha Provisória:** Lógica dinâmica para geração de credenciais provisórias baseadas em atributos seguros do usuário, com alteração obrigatória no primeiro logon (`ChangePasswordAtLogon = $true`).
-* **Lógica Dinâmica de Unidades Organizacionais (OUs):** Alocação automática baseada na categoria do perfil (Interno vs. Terceiro/Prestador) e definição personalizada de proxies SMTP/SIP.
-* **Comunicação Automatizada (UX):** Geração automática de e-mails em HTML formatados com tabela de dados e instruções de segurança (MFA), salvando diretamente nos **Rascunhos (Drafts)** do Outlook para validação prévia do analista.
+---
+
+## 🏛️ Arquitetura do Projeto
+
+O repositório está dividido em duas abordagens operacionais:
+
+* 📁 **/cli (Versão 1.0 - Linha de Comando):** Script ágil em terminal para processamento em lote via colagem direta de dados tabulados, focado em operações rotineiras de Service Desk / N2.
+* 📁 **/gui (Versão 2.0 - Central Gráfica Enterprise):** Aplicação visual completa construída em WPF (XAML), com dashboard analítico em tempo real, prevenção contra homônimos, validação cruzada no AD antes da criação e controles de importação/exportação.
+
+---
+
+## 🚀 Diferenciais Técnicos e Governança
+
+* **Interface Visual com Dashboard em Tempo Real (WPF/XAML):** Monitoramento visual de contas criadas, falhas operacionais e pendências cadastrais com log de erros integrado.
+* **Prevenção Ativa Contra Homônimos:** Validação em tempo de execução via cruzamento de UPN, Matrícula e CPF diretamente no Active Directory, bloqueando a criação duplicada de credenciais ativas ou inativas.
+* **Normalização Unicode:** Higienização de acentuação e caracteres especiais (`FormD`) garantindo compatibilidade entre diretórios locais e nuvem.
+* **Comunicação Automatizada (Outlook COM):** Geração de rascunhos de e-mail em formato HTML corporativo com orientações de primeiro acesso, políticas de MFA e diretrizes de senhas seguras.
+* **Exportação e Portabilidade:** Suporte a importação e exportação de filas em formato `.csv` e cópia automatizada de e-mails para ativação de MFA no portal do Entra ID.
+
+---
 
 ## 🛠️ Tecnologias Utilizadas
-* **PowerShell (Core):** Engine principal da automação e manipulação de objetos.
-* **Módulo Active Directory:** Gestão de objetos de usuário e atributos estendidos (`extensionAttributes`, `employeeID`, etc.).
-* **Microsoft Graph SDK (`Connect-MgGraph` / `Invoke-MgGraphRequest`):** Comunicação via REST API (método PATCH) com o Microsoft Entra ID.
-* **Microsoft Outlook COM Object:** Automação e integração com o cliente de e-mail local.
 
-## 📋 Como Utilizar
-1. Copie a massa de dados do Excel (17 colunas separadas por Tab, incluindo a sinalização do tipo de processo: `nova` ou `migracao`).
-2. Execute o script `ProvisionamentoLote.ps1`.
-3. Cole os dados diretamente no console quando solicitado e pressione `Enter`.
-4. O script identificará os cenários:
-   * Se houver contas de **migração**, solicitará a conexão com o **Microsoft Graph** para reset do `ImmutableID`.
-   * Se forem apenas **contas novas**, executará o fluxo 100% local.
-5. As contas serão criadas no AD e os e-mails de onboarding serão salvos na pasta de **Rascunhos** do Outlook.
+* **PowerShell 5.1 / 7+**
+* **ActiveDirectory Module**
+* **Windows Presentation Foundation (WPF / XAML)**
+* **Microsoft Outlook COM Object**
+* **System.Drawing & GDI+** (Geração dinâmica de identidade visual)
+
+---
+
+## 📋 Como Executar
+
+### Versão Gráfica (Recomendada):
+1. Navegue até a pasta `gui/`.
+2. Execute o arquivo `CentralProvisionamentoIAM.ps1` no PowerShell como Administrador:
+   ```powershell
+   powershell.exe -ExecutionPolicy Bypass -File .\gui\CentralProvisionamentoIAM.ps1
